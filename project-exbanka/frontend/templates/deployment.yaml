@@ -6,7 +6,6 @@ metadata:
   labels:
     app: frontend
     component: frontend
-    gitops-probe: flux-sync-test
     {{- include "exbanka-frontend.labels" . | nindent 4 }}
   {{- if .Values.keel.enabled }}
   annotations:
