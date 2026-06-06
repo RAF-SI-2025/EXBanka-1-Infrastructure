@@ -1,11 +1,13 @@
 image: postgres:17-alpine
 
-# Persistent storage for each database. Standard SSD (managed-csi) is the
-# cheapest managed disk; 1Gi is plenty for these per-service DBs and bills at
-# Azure's smallest disk tier. Data now survives pod restarts and `az aks stop`.
+# Persistent storage for the shared postgres instance. Standard SSD
+# (managed-csi) is the cheapest managed disk. NOTE: this MUST match (or exceed)
+# the live PVC's actual capacity — Kubernetes forbids shrinking a PVC, so a
+# value below the provisioned size makes `helm upgrade` fail. The live
+# postgres-shared-data PVC is 8Gi (Azure provisioned), so keep this at 8Gi.
 storage:
   className: managed-csi
-  size: 2Gi
+  size: 8Gi
 
 instances:
   user-db:
