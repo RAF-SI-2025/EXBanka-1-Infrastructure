@@ -9,6 +9,7 @@ spec:
   chart:
     spec:
       chart: project-exbanka/frontend
+      reconcileStrategy: Revision
       sourceRef:
         kind: GitRepository
         name: exbanka-infra

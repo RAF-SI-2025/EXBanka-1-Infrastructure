@@ -15,6 +15,7 @@ spec:
   chart:
     spec:
       chart: project-exbanka/backend-instance1
+      reconcileStrategy: Revision
       sourceRef:
         kind: GitRepository
         name: exbanka-infra

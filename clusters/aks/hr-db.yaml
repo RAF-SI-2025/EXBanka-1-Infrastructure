@@ -9,6 +9,9 @@ spec:
   chart:
     spec:
       chart: project-exbanka/db
+      # Repackage on every new git commit, not only when Chart.yaml version
+      # changes — so plain template/values edits are picked up automatically.
+      reconcileStrategy: Revision
       sourceRef:
         kind: GitRepository
         name: exbanka-infra
