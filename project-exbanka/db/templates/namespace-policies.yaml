@@ -1,0 +1,19 @@
+---
+# Default deny: block ALL ingress from outside this namespace.
+# Pods within the namespace can still communicate freely with each other
+# (microservices → databases, microservices → kafka/redis, etc.).
+# The nginx Ingress controller's own traffic is handled at the cluster level.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-external-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "exbanka-db.labels" . | nindent 4 }}
+spec:
+  podSelector: {}    # applies to every pod in this namespace
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}   # allow only from pods in the same namespace

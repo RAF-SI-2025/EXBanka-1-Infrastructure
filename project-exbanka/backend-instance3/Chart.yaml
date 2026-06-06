@@ -1,0 +1,6 @@
+apiVersion: v2
+name: exbanka-backend
+description: EXBanka microservices, API gateway, and seeder
+version: 1.0.0
+appVersion: "latest"
+type: application

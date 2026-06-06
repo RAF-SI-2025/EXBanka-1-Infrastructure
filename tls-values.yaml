@@ -1,0 +1,10 @@
+ingress:
+  host: exbanka.vlupsic.dev
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  tls:
+    - hosts:
+        - exbanka.vlupsic.dev
+      secretName: exbanka-tls
+vpa:
+  enabled: false

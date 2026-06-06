@@ -1,0 +1,40 @@
+image: ghcr.io/raf-si-2025/exbanka-1-frontend
+imageTag: latest
+replicas: 1
+port: 80
+
+resources:
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
+  limits:
+    cpu: "200m"
+    memory: "128Mi"
+
+vpa:
+  enabled: true
+  updateMode: "Auto"
+
+# keel auto-update (polls GHCR for new :latest digests and redeploys)
+keel:
+  enabled: true
+  policy: force
+  trigger: poll
+  pollSchedule: "@every 1m"
+  matchTag: true
+
+global:
+  imagePullPolicy: Always
+  forceRollout: ""
+  imagePullSecrets:
+    - ghcr-secret
+
+# ---------------------------------------------------------------------------
+# Kubernetes Ingress (nginx-ingress controller)
+# ---------------------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  host: ""         # leave empty to match all hosts, or set e.g. mybank.example.com
+  annotations: {}
+  tls: []          # e.g. [{hosts: [mybank.example.com], secretName: tls-secret}]

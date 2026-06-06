@@ -1,0 +1,32 @@
+image: postgres:17-alpine
+
+# Persistent storage for each database. Standard SSD (managed-csi) is the
+# cheapest managed disk; 1Gi is plenty for these per-service DBs and bills at
+# Azure's smallest disk tier. Data now survives pod restarts and `az aks stop`.
+storage:
+  className: managed-csi
+  size: 2Gi
+
+instances:
+  user-db:
+    dbName: user_db
+  auth-db:
+    dbName: auth_db
+  client-db:
+    dbName: clientdb
+  account-db:
+    dbName: accountdb
+  card-db:
+    dbName: carddb
+  transaction-db:
+    dbName: transactiondb
+  credit-db:
+    dbName: creditdb
+  exchange-db:
+    dbName: exchangedb
+  stock-db:
+    dbName: stockdb
+  verification-db:
+    dbName: verificationdb
+  notification-db:
+    dbName: notification_db

@@ -1,0 +1,11 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: exbanka-infra
+  namespace: flux-system
+spec:
+  # Poll the repo for new commits every minute (public repo, no auth needed).
+  interval: 1m0s
+  url: https://github.com/RAF-SI-2025/EXBanka-1-Infrastructure.git
+  ref:
+    branch: main

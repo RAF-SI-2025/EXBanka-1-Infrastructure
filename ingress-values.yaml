@@ -1,0 +1,7 @@
+controller:
+  service:
+    loadBalancerIP: 20.199.117.134
+    annotations:
+      service.beta.kubernetes.io/azure-pip-name: exbanka-ingress-ip
+      service.beta.kubernetes.io/azure-load-balancer-resource-group: MC_exbanka-rg_exbanka-aks_francecentral
+      service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz

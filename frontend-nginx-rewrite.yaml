@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-nginx-rewrite
+  namespace: frontend
+data:
+  default.conf: |
+    server {
+        listen 80;
+        root /usr/share/nginx/html;
+        index index.html;
+
+        # Rewrite the hardcoded API base URL in served assets so requests
+        # hit our cluster instead of project-exbanka.bytenity.com.
+        sub_filter 'https://project-exbanka.bytenity.com' 'https://exbanka.vlupsic.dev';
+        sub_filter 'http://project-exbanka.bytenity.com'  'https://exbanka.vlupsic.dev';
+        sub_filter_once off;
+        sub_filter_types application/javascript text/javascript application/json text/html;
+
+        # SPA fallback — all routes serve index.html
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Cache static assets (but DON'T cache JS for too long while we're
+        # rewriting it — short cache so a backend URL change propagates fast)
+        location ~* \.(png|jpg|jpeg|gif|ico|svg|woff2?)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+
+        location ~* \.(js|css)$ {
+            expires 5m;
+            add_header Cache-Control "public, must-revalidate";
+        }
+    }

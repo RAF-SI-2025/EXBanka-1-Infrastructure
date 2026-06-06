@@ -1,0 +1,121 @@
+{{- /*
+  Consolidated database tier: a single Postgres instance backed by ONE PVC
+  hosts all logical databases. Each per-service Service name (auth-db, user-db,
+  ...) is kept and points at the shared pod, so services need no config change.
+  This keeps us within the per-node Azure data-disk limit (B2ms = 4/node).
+*/ -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: {{ .Release.Namespace }}
+  labels:
+    component: database
+    {{- include "exbanka-db.labels" . | nindent 4 }}
+data:
+  10-create-databases.sh: |
+    #!/bin/bash
+    set -e
+    for db in {{ range $name, $db := .Values.instances }}{{ $db.dbName }} {{ end }}; do
+      echo "seeder-init: ensuring database $db"
+      if ! psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -tAc "SELECT 1 FROM pg_database WHERE datname = '$db'" | grep -q 1; then
+        psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -c "CREATE DATABASE \"$db\""
+      fi
+    done
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-shared
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: postgres-shared
+    component: database
+    {{- include "exbanka-db.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: postgres-shared
+  template:
+    metadata:
+      labels:
+        app: postgres-shared
+        component: database
+    spec:
+      {{- include "exbanka-db.podSecurityContext" . | nindent 6 }}
+      containers:
+        - name: postgres
+          image: {{ .Values.image }}
+          {{- include "exbanka-db.containerSecurityContext" . | nindent 10 }}
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: postgres
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: pgdata
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            periodSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 5
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-shared-data
+        - name: init
+          configMap:
+            name: postgres-init
+            defaultMode: 0755
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-shared-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: postgres-shared
+    component: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.className | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.size | quote }}
+{{- range $name, $db := .Values.instances }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: postgres-shared
+    component: database
+spec:
+  selector:
+    app: postgres-shared
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+{{- end }}

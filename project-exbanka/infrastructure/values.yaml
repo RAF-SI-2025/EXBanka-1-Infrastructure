@@ -1,0 +1,11 @@
+kafka:
+  image: apache/kafka:3.8.1
+
+redis:
+  image: redis:7.4-alpine
+
+influxdb:
+  image: influxdb:2.7-alpine
+  org: exbanka
+  bucket: stock_prices
+  adminToken: exbanka-influx-dev-token

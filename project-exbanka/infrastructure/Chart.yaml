@@ -1,0 +1,6 @@
+apiVersion: v2
+name: exbanka-infrastructure
+description: EXBanka shared infrastructure (Kafka, Redis, InfluxDB)
+version: 1.0.0
+appVersion: "latest"
+type: application

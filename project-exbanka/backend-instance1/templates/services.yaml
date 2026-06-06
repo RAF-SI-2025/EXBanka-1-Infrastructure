@@ -1,0 +1,95 @@
+{{- range $name, $svc := .Values.microservices }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $name }}
+    component: service
+    {{- include "exbanka-backend.labels" $ | nindent 4 }}
+  {{- if $.Values.keel.enabled }}
+  annotations:
+    {{- include "exbanka-backend.keelAnnotations" $ | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ $.Values.serviceDefaults.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: {{ $name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+        component: service
+      annotations:
+        {{- include "exbanka-backend.rolloutAnnotation" $ | nindent 8 }}
+    spec:
+      {{- include "exbanka-backend.podSecurityContext" $ | nindent 6 }}
+      {{- with $.Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range . }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: {{ $name }}
+          image: "{{ $svc.image }}:{{ $.Values.global.imageTag }}"
+          imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
+          {{- include "exbanka-backend.containerSecurityContext" $ | nindent 10 }}
+          ports:
+            - containerPort: {{ $svc.port }}
+              name: grpc
+            - containerPort: {{ $svc.metricsPort }}
+              name: metrics
+          env:
+            {{- range $key, $value := $svc.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml $.Values.serviceDefaults.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: /startupz
+              port: metrics
+            failureThreshold: 60
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: metrics
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: metrics
+            periodSeconds: 15
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $name }}
+    component: service
+spec:
+  selector:
+    app: {{ $name }}
+  ports:
+    - port: {{ $svc.port }}
+      targetPort: grpc
+      name: grpc
+    - port: {{ $svc.metricsPort }}
+      targetPort: metrics
+      name: metrics
+{{- end }}

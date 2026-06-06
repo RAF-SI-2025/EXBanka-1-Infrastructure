@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seeder
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: seeder
+    component: seeder
+    {{- include "exbanka-backend.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-weight": "10"
+spec:
+  backoffLimit: 5
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        app: seeder
+    spec:
+      {{- include "exbanka-backend.podSecurityContext" . | nindent 6 }}
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range . }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: seeder
+          image: "{{ .Values.seeder.image }}:{{ .Values.global.imageTag }}"
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          {{- include "exbanka-backend.containerSecurityContext" . | nindent 10 }}
+          env:
+            {{- range $key, $value := .Values.seeder.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+      restartPolicy: OnFailure

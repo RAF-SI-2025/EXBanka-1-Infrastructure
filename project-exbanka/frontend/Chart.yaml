@@ -1,0 +1,6 @@
+apiVersion: v2
+name: exbanka-frontend
+description: EXBanka React frontend
+version: 1.0.0
+appVersion: "latest"
+type: application
