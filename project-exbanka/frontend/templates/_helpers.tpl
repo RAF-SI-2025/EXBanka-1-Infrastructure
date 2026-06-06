@@ -1,6 +1,6 @@
 {{- define "exbanka-frontend.labels" -}}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{- define "exbanka-frontend.podSecurityContext" -}}
