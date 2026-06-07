@@ -32,3 +32,5 @@ instances:
     dbName: verificationdb
   notification-db:
     dbName: notification_db
+  interbank-db:
+    dbName: interbankdb

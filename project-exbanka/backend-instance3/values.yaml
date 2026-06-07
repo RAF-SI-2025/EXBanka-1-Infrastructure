@@ -244,7 +244,28 @@ microservices:
       OWN_BANK_CODE: "333"
       OTC_EXPIRY_CRON_UTC: "02:00"
       OTC_EXPIRY_BATCH_SIZE: "500"
+      INTERBANK_GRPC_ADDR: "interbank-service:50062"
       METRICS_PORT: "9110"
+
+  interbank-service:
+    image: ghcr.io/raf-si-2025/exbanka-1-backend/interbank-service
+    port: 50062
+    metricsPort: 9112
+    env:
+      INTERBANK_DB_HOST: interbank-db
+      INTERBANK_DB_PORT: "5432"
+      INTERBANK_DB_USER: postgres
+      INTERBANK_DB_PASSWORD: postgres
+      INTERBANK_DB_NAME: interbankdb
+      INTERBANK_GRPC_ADDR: ":50062"
+      ACCOUNT_GRPC_ADDR: "account-service:50055"
+      STOCK_GRPC_ADDR: "stock-service:50060"
+      CLIENT_GRPC_ADDR: "client-service:50054"
+      USER_GRPC_ADDR: "user-service:50052"
+      OWN_BANK_CODE: "333"
+      OWN_BANK_DISPLAY_NAME: "EXBanka"
+      SITX_RECEIVE_SYNC_DEADLINE: "5s"
+      METRICS_PORT: "9112"
 
 # ---------------------------------------------------------------------------
 # API Gateway (HTTP)
@@ -267,6 +288,7 @@ apiGateway:
     STOCK_GRPC_ADDR: "stock-service:50060"
     VERIFICATION_GRPC_ADDR: "verification-service:50061"
     NOTIFICATION_GRPC_ADDR: "notification-service:50053"
+    INTERBANK_GRPC_ADDR: "interbank-service:50062"
     KAFKA_BROKERS: kafka:9092
     REDIS_ADDR: "redis:6379"
     OWN_BANK_CODE: "333"
