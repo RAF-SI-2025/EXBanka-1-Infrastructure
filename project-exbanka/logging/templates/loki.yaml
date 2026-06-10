@@ -46,6 +46,21 @@ data:
       retention_enabled: true
       delete_request_store: filesystem
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: loki-pvc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: loki
+    {{- include "exbanka-logging.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.loki.storage }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -56,6 +71,8 @@ metadata:
     {{- include "exbanka-logging.labels" . | nindent 4 }}
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: loki
@@ -105,7 +122,8 @@ spec:
           configMap:
             name: loki-config
         - name: data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: loki-pvc
 ---
 apiVersion: v1
 kind: Service

@@ -6,6 +6,7 @@ prometheus:
 loki:
   image: grafana/loki:3.0.0
   retention: 720h   # 30 days
+  storage: 10Gi
 
 promtail:
   image: grafana/promtail:3.0.0
