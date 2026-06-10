@@ -1,21 +1,6 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
-  "__requires": [
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
-    }
-  ],
+  "__inputs": [],
+  "__requires": [],
   "uid": "exbanka-overview",
   "title": "EXBanka Overview",
   "tags": ["exbanka"],
@@ -29,7 +14,7 @@
         "name": "namespace",
         "type": "query",
         "label": "Instance",
-        "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
         "query": "label_values(up{job=\"exbanka-services\"}, namespace)",
         "multi": true,
         "includeAll": true,
@@ -45,7 +30,7 @@
       "title": "Services Up",
       "type": "stat",
       "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "count(up{job=\"exbanka-services\", namespace=~\"$namespace\"} == 1)",
@@ -71,7 +56,7 @@
       "title": "Services Down",
       "type": "stat",
       "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "count(up{job=\"exbanka-services\", namespace=~\"$namespace\"} == 0) OR vector(0)",
@@ -97,7 +82,7 @@
       "title": "Total gRPC Requests/s",
       "type": "stat",
       "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum(rate(grpc_server_started_total{namespace=~\"$namespace\"}[5m]))",
@@ -117,7 +102,7 @@
       "title": "gRPC Error Rate",
       "type": "stat",
       "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum(rate(grpc_server_handled_total{grpc_code!=\"OK\", namespace=~\"$namespace\"}[5m])) / sum(rate(grpc_server_handled_total{namespace=~\"$namespace\"}[5m])) * 100",
@@ -145,7 +130,7 @@
       "title": "Auth Logins/s",
       "type": "stat",
       "gridPos": { "x": 16, "y": 0, "w": 4, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum(rate(auth_login_total{namespace=~\"$namespace\"}[5m]))",
@@ -160,7 +145,7 @@
       "title": "Exchange Conversions/s",
       "type": "stat",
       "gridPos": { "x": 20, "y": 0, "w": 4, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum(rate(exchange_conversions_total{namespace=~\"$namespace\"}[5m]))",
@@ -175,7 +160,7 @@
       "title": "Service Health",
       "type": "table",
       "gridPos": { "x": 0, "y": 4, "w": 24, "h": 6 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "up{job=\"exbanka-services\", namespace=~\"$namespace\"}",
@@ -215,7 +200,7 @@
       "title": "gRPC Request Rate by Service",
       "type": "timeseries",
       "gridPos": { "x": 0, "y": 10, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum by (service, grpc_service) (rate(grpc_server_started_total{namespace=~\"$namespace\"}[5m]))",
@@ -230,7 +215,7 @@
       "title": "gRPC Error Rate by Service",
       "type": "timeseries",
       "gridPos": { "x": 8, "y": 10, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum by (service, grpc_code) (rate(grpc_server_handled_total{grpc_code!=\"OK\", namespace=~\"$namespace\"}[5m]))",
@@ -245,7 +230,7 @@
       "title": "gRPC P99 Latency",
       "type": "timeseries",
       "gridPos": { "x": 16, "y": 10, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "histogram_quantile(0.99, sum by (service, le) (rate(grpc_server_handling_seconds_bucket{namespace=~\"$namespace\"}[5m])))",
@@ -260,7 +245,7 @@
       "title": "Auth Activity",
       "type": "timeseries",
       "gridPos": { "x": 0, "y": 18, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum(rate(auth_login_total{namespace=~\"$namespace\"}[5m]))",
@@ -283,7 +268,7 @@
       "title": "Account & Client Events",
       "type": "timeseries",
       "gridPos": { "x": 8, "y": 18, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum(rate(accounts_created_total{namespace=~\"$namespace\"}[5m]))",
@@ -310,7 +295,7 @@
       "title": "Exchange & Stock Activity",
       "type": "timeseries",
       "gridPos": { "x": 16, "y": 18, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum(rate(exchange_conversions_total{namespace=~\"$namespace\"}[5m]))",
@@ -337,7 +322,7 @@
       "title": "Notification Activity",
       "type": "timeseries",
       "gridPos": { "x": 0, "y": 26, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum(rate(notification_general_created_total{namespace=~\"$namespace\"}[5m]))",
@@ -360,7 +345,7 @@
       "title": "Exchange Rate Sync Duration P99",
       "type": "timeseries",
       "gridPos": { "x": 8, "y": 26, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "histogram_quantile(0.99, sum by (le) (rate(exchange_rate_sync_duration_seconds_bucket{namespace=~\"$namespace\"}[5m])))",
@@ -379,7 +364,7 @@
       "title": "Credit & Verification",
       "type": "timeseries",
       "gridPos": { "x": 16, "y": 26, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "sum(rate(credit_late_payment_penalties_total{namespace=~\"$namespace\"}[5m]))",
@@ -402,7 +387,7 @@
       "title": "Goroutines by Service",
       "type": "timeseries",
       "gridPos": { "x": 0, "y": 34, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "go_goroutines{namespace=~\"$namespace\"}",
@@ -417,7 +402,7 @@
       "title": "Heap Memory by Service",
       "type": "timeseries",
       "gridPos": { "x": 8, "y": 34, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "go_memstats_heap_alloc_bytes{namespace=~\"$namespace\"}",
@@ -432,7 +417,7 @@
       "title": "CPU Usage by Service",
       "type": "timeseries",
       "gridPos": { "x": 16, "y": 34, "w": 8, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "rate(process_cpu_seconds_total{namespace=~\"$namespace\"}[5m])",
@@ -447,7 +432,7 @@
       "title": "Resident Memory by Service",
       "type": "timeseries",
       "gridPos": { "x": 0, "y": 42, "w": 12, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "process_resident_memory_bytes{namespace=~\"$namespace\"}",
@@ -462,7 +447,7 @@
       "title": "Open File Descriptors by Service",
       "type": "timeseries",
       "gridPos": { "x": 12, "y": 42, "w": 12, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" , "name": "Prometheus" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
           "expr": "process_open_fds{namespace=~\"$namespace\"}",

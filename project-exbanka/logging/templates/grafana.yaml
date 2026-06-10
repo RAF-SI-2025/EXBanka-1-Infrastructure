@@ -33,6 +33,7 @@ data:
           maxLines: 1000
       - name: Prometheus
         type: prometheus
+        uid: prometheus
         access: proxy
         url: http://prometheus.{{ .Release.Namespace }}.svc.cluster.local:9090
         editable: true
