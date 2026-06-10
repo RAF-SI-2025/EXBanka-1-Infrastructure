@@ -106,6 +106,10 @@ spec:
               mountPath: /var/lib/grafana
             - name: datasources
               mountPath: /etc/grafana/provisioning/datasources
+            - name: dashboard-provisioning
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
           readinessProbe:
             httpGet:
               path: /grafana/api/health
@@ -126,6 +130,46 @@ spec:
         - name: datasources
           configMap:
             name: grafana-datasources
+        - name: dashboard-provisioning
+          configMap:
+            name: grafana-dashboard-provisioning
+        - name: dashboards
+          configMap:
+            name: grafana-dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provisioning
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: grafana
+    {{- include "exbanka-logging.labels" . | nindent 4 }}
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: exbanka
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 30
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: grafana
+    {{- include "exbanka-logging.labels" . | nindent 4 }}
+data:
+  exbanka-logs.json: |
+{{ .Files.Get "dashboards/exbanka-logs.json" | indent 4 }}
+  exbanka-overview.json: |
+{{ .Files.Get "dashboards/exbanka-overview.json" | indent 4 }}
 ---
 apiVersion: v1
 kind: Service
