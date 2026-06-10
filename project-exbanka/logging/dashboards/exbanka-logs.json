@@ -37,6 +37,8 @@
         {
           "expr": "{namespace=\"project-exbanka-instance1\"}",
           "refId": "A",
+          "queryType": "range",
+          "maxLines": 1000,
           "legendFormat": ""
         }
       ],
@@ -59,6 +61,8 @@
         {
           "expr": "{namespace=\"project-exbanka-instance2\"}",
           "refId": "A",
+          "queryType": "range",
+          "maxLines": 1000,
           "legendFormat": ""
         }
       ],
@@ -81,6 +85,8 @@
         {
           "expr": "{namespace=~\"project-exbanka-instance1|project-exbanka-instance2\", level=~\"error|ERROR\"}",
           "refId": "A",
+          "queryType": "range",
+          "maxLines": 1000,
           "legendFormat": ""
         }
       ],
