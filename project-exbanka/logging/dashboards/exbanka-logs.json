@@ -16,10 +16,9 @@
         "label": "Instance",
         "datasource": { "type": "loki", "uid": "loki" },
         "query": { "label": "namespace", "refId": "A", "stream": "", "type": 1 },
-        "multi": false,
-        "includeAll": true,
-        "allValue": ".+",
-        "current": { "text": "All", "value": "$__all" },
+        "multi": true,
+        "includeAll": false,
+        "current": {},
         "refresh": 2
       },
       {
@@ -27,11 +26,10 @@
         "type": "query",
         "label": "Service",
         "datasource": { "type": "loki", "uid": "loki" },
-        "query": { "label": "service", "refId": "B", "stream": "{namespace=~\"$namespace\"}", "type": 1 },
-        "multi": false,
-        "includeAll": true,
-        "allValue": ".+",
-        "current": { "text": "All", "value": "$__all" },
+        "query": { "label": "service", "refId": "B", "stream": "", "type": 1 },
+        "multi": true,
+        "includeAll": false,
+        "current": {},
         "refresh": 2
       },
       {
@@ -39,11 +37,10 @@
         "type": "query",
         "label": "Level",
         "datasource": { "type": "loki", "uid": "loki" },
-        "query": { "label": "level", "refId": "C", "stream": "{namespace=~\"$namespace\"}", "type": 1 },
+        "query": { "label": "level", "refId": "C", "stream": "", "type": 1 },
         "multi": true,
-        "includeAll": true,
-        "allValue": ".+",
-        "current": { "text": "All", "value": "$__all" },
+        "includeAll": false,
+        "current": {},
         "refresh": 2
       }
     ]
@@ -57,7 +54,7 @@
       "datasource": { "type": "loki", "uid": "loki" },
       "targets": [
         {
-          "expr": "sum(count_over_time({namespace=~\"$namespace\", service=~\"$service\", level=\"ERROR\"}[1h]))",
+          "expr": "sum(count_over_time({namespace=~\"$namespace\", service=~\"$service\", level=~\"ERROR\"}[1h]))",
           "legendFormat": "Errors"
         }
       ],
@@ -164,7 +161,7 @@
       "datasource": { "type": "loki", "uid": "loki" },
       "targets": [
         {
-          "expr": "sum by (service) (count_over_time({namespace=~\"$namespace\", service=~\"$service\", level=\"ERROR\"}[5m]))",
+          "expr": "sum by (service) (count_over_time({namespace=~\"$namespace\", service=~\"$service\", level=~\"ERROR\"}[5m]))",
           "legendFormat": "{{service}}"
         }
       ],
@@ -227,7 +224,7 @@
       "datasource": { "type": "loki", "uid": "loki" },
       "targets": [
         {
-          "expr": "{namespace=~\"$namespace\", service=~\"$service\", level=\"ERROR\"}",
+          "expr": "{namespace=~\"$namespace\", service=~\"$service\", level=~\"ERROR\"}",
           "legendFormat": ""
         }
       ],
