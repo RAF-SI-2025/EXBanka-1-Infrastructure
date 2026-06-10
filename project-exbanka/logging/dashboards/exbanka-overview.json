@@ -1,0 +1,461 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "uid": "exbanka-overview",
+  "title": "EXBanka Overview",
+  "tags": ["exbanka"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "namespace",
+        "type": "query",
+        "label": "Instance",
+        "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+        "query": "label_values(up{job=\"exbanka-services\"}, namespace)",
+        "multi": true,
+        "includeAll": true,
+        "allValue": "project-exbanka-instance1|project-exbanka-instance2",
+        "current": { "text": "All", "value": "$__all" },
+        "refresh": 2
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Services Up",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "count(up{job=\"exbanka-services\", namespace=~\"$namespace\"} == 1)",
+          "legendFormat": "Up"
+        }
+      ],
+      "options": { "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Services Down",
+      "type": "stat",
+      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "count(up{job=\"exbanka-services\", namespace=~\"$namespace\"} == 0) OR vector(0)",
+          "legendFormat": "Down"
+        }
+      ],
+      "options": { "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Total gRPC Requests/s",
+      "type": "stat",
+      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(grpc_server_started_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "req/s"
+        }
+      ],
+      "options": { "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": { "mode": "palette-classic" }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "gRPC Error Rate",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(grpc_server_handled_total{grpc_code!=\"OK\", namespace=~\"$namespace\"}[5m])) / sum(rate(grpc_server_handled_total{namespace=~\"$namespace\"}[5m])) * 100",
+          "legendFormat": "error %"
+        }
+      ],
+      "options": { "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 5 }
+            ]
+          },
+          "color": { "mode": "thresholds" }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Auth Logins/s",
+      "type": "stat",
+      "gridPos": { "x": 16, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(auth_login_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "logins/s"
+        }
+      ],
+      "options": { "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "id": 6,
+      "title": "Exchange Conversions/s",
+      "type": "stat",
+      "gridPos": { "x": 20, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(exchange_conversions_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "conv/s"
+        }
+      ],
+      "options": { "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" } } }
+    },
+    {
+      "id": 7,
+      "title": "Service Health",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 4, "w": 24, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "up{job=\"exbanka-services\", namespace=~\"$namespace\"}",
+          "legendFormat": "{{service}} ({{namespace}})",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "__name__": true, "job": true, "instance": true, "pod": true }, "renameByName": { "namespace": "Instance", "service": "Service", "Value": "Status" } } }
+      ],
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Status" },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  { "type": "value", "options": { "1": { "text": "UP", "color": "green" } } },
+                  { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" } } }
+                ]
+              },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] } },
+              { "id": "color", "value": { "mode": "thresholds" } }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "title": "gRPC Request Rate by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 10, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum by (service, grpc_service) (rate(grpc_server_started_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "{{service}} / {{grpc_service}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 9,
+      "title": "gRPC Error Rate by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 10, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum by (service, grpc_code) (rate(grpc_server_handled_total{grpc_code!=\"OK\", namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "{{service}} - {{grpc_code}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 1 }, "color": { "mode": "palette-classic" } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 10,
+      "title": "gRPC P99 Latency",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 10, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (service, le) (rate(grpc_server_handling_seconds_bucket{namespace=~\"$namespace\"}[5m])))",
+          "legendFormat": "{{service}} p99"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 11,
+      "title": "Auth Activity",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 18, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(auth_login_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Logins"
+        },
+        {
+          "expr": "sum(rate(auth_tokens_issued_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Tokens Issued"
+        },
+        {
+          "expr": "sum(rate(auth_password_reset_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Password Resets"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 12,
+      "title": "Account & Client Events",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 18, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(accounts_created_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Accounts Created"
+        },
+        {
+          "expr": "sum(rate(client_created_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Clients Created"
+        },
+        {
+          "expr": "sum(rate(user_employee_created_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Employees Created"
+        },
+        {
+          "expr": "sum(rate(user_role_changes_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Role Changes"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 13,
+      "title": "Exchange & Stock Activity",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 18, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(exchange_conversions_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Exchange Conversions"
+        },
+        {
+          "expr": "sum(rate(exchange_rate_sync_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Rate Syncs"
+        },
+        {
+          "expr": "sum(rate(stock_otc_trades_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "OTC Trades"
+        },
+        {
+          "expr": "sum(rate(transaction_saga_compensations_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Saga Compensations"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 14,
+      "title": "Notification Activity",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 26, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(notification_general_created_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "General Notifications"
+        },
+        {
+          "expr": "sum(rate(notification_mobile_push_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Mobile Push"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(notification_email_send_duration_seconds_bucket{namespace=~\"$namespace\"}[5m])))",
+          "legendFormat": "Email Send P99"
+        }
+      ],
+      "fieldConfig": { "defaults": { "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 15,
+      "title": "Exchange Rate Sync Duration P99",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 26, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(exchange_rate_sync_duration_seconds_bucket{namespace=~\"$namespace\"}[5m])))",
+          "legendFormat": "Exchange Sync P99"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(stock_price_refresh_duration_seconds_bucket{namespace=~\"$namespace\"}[5m])))",
+          "legendFormat": "Stock Refresh P99"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 16,
+      "title": "Credit & Verification",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 26, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "sum(rate(credit_late_payment_penalties_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Late Payment Penalties"
+        },
+        {
+          "expr": "sum(rate(verification_challenges_expired_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Verification Challenges Expired"
+        },
+        {
+          "expr": "sum(rate(client_limit_updates_total{namespace=~\"$namespace\"}[5m]))",
+          "legendFormat": "Client Limit Updates"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 17,
+      "title": "Goroutines by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 34, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "go_goroutines{namespace=~\"$namespace\"}",
+          "legendFormat": "{{service}} ({{namespace}})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 18,
+      "title": "Heap Memory by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 34, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "go_memstats_heap_alloc_bytes{namespace=~\"$namespace\"}",
+          "legendFormat": "{{service}} ({{namespace}})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 19,
+      "title": "CPU Usage by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 34, "w": 8, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total{namespace=~\"$namespace\"}[5m])",
+          "legendFormat": "{{service}} ({{namespace}})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 20,
+      "title": "Resident Memory by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 42, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes{namespace=~\"$namespace\"}",
+          "legendFormat": "{{service}} ({{namespace}})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 21,
+      "title": "Open File Descriptors by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 42, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "process_open_fds{namespace=~\"$namespace\"}",
+          "legendFormat": "{{service}} ({{namespace}})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 1 } } },
+      "options": { "tooltip": { "mode": "multi" } }
+    }
+  ]
+}
