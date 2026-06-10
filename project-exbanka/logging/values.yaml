@@ -1,3 +1,8 @@
+prometheus:
+  image: prom/prometheus:v2.53.0
+  retention: 30d
+  storage: 10Gi
+
 loki:
   image: grafana/loki:3.0.0
   retention: 720h   # 30 days

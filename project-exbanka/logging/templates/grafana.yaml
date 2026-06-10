@@ -20,7 +20,7 @@ metadata:
     app: grafana
     {{- include "exbanka-logging.labels" . | nindent 4 }}
 data:
-  loki.yaml: |
+  datasources.yaml: |
     apiVersion: 1
     datasources:
       - name: Loki
@@ -31,6 +31,11 @@ data:
         editable: true
         jsonData:
           maxLines: 1000
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus.{{ .Release.Namespace }}.svc.cluster.local:9090
+        editable: true
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -57,6 +62,8 @@ metadata:
     {{- include "exbanka-logging.labels" . | nindent 4 }}
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: grafana
