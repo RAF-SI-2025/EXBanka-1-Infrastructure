@@ -215,6 +215,13 @@ microservices:
     image: ghcr.io/raf-si-2025/exbanka-1-backend/stock-service
     port: 50060
     metricsPort: 9110
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "768Mi"
     env:
       STOCK_DB_HOST: stock-db
       STOCK_DB_PORT: "5432"

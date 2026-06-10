@@ -50,7 +50,7 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
           resources:
-            {{- toYaml $.Values.serviceDefaults.resources | nindent 12 }}
+            {{- toYaml (default $.Values.serviceDefaults.resources $svc.resources) | nindent 12 }}
           startupProbe:
             httpGet:
               path: /startupz
