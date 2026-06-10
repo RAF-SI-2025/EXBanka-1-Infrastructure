@@ -1,0 +1,22 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: logging
+  namespace: monitoring
+spec:
+  interval: 5m
+  releaseName: logging
+  chart:
+    spec:
+      chart: project-exbanka/logging
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: exbanka-infra
+        namespace: flux-system
+      interval: 1m
+  install:
+    createNamespace: true
+  upgrade:
+    remediation:
+      retries: 2

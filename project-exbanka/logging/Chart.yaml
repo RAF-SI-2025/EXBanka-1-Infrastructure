@@ -1,0 +1,6 @@
+apiVersion: v2
+name: exbanka-logging
+description: EXBanka PLG logging stack (Promtail + Loki + Grafana)
+version: 1.0.0
+appVersion: "latest"
+type: application

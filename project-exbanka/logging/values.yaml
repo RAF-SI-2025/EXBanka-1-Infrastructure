@@ -1,0 +1,15 @@
+loki:
+  image: grafana/loki:3.0.0
+  retention: 720h   # 30 days
+
+promtail:
+  image: grafana/promtail:3.0.0
+
+grafana:
+  image: grafana/grafana:11.4.0
+  adminUser: admin
+  adminPassword: exbanka-grafana-2026
+  storage: 2Gi
+  rootUrl: "https://exbanka.vlupsic.dev/grafana"
+  host: exbanka.vlupsic.dev
+  tlsSecret: grafana-tls
